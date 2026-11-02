@@ -20,7 +20,7 @@ function MySubmissions() {
         async function getSubmissions() {
             try {
                 const courseResponse = await axios.get(
-                    "http://localhost:8080/course"
+                    "https://learning-management-system-q1rc.onrender.com/course"
                 );
 
                 const myCourses = courseResponse.data.filter(
@@ -28,7 +28,7 @@ function MySubmissions() {
                 );
 
                 const assignmentResponse = await axios.get(
-                    "http://localhost:8080/assignment"
+                    "https://learning-management-system-q1rc.onrender.com/assignment"
                 );
 
                 const myAssignments = assignmentResponse.data.filter(
@@ -38,7 +38,7 @@ function MySubmissions() {
                 );
 
                 const submissionResponse = await axios.get(
-                    "http://localhost:8080/submission"
+                    "https://learning-management-system-q1rc.onrender.com/submission"
                 );
 
                 const mySubmissions = submissionResponse.data.filter(

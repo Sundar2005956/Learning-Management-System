@@ -15,7 +15,7 @@ function Assignment() {
     const [description, setDescription] = useState("");
 
     useEffect(() => {
-        axios.get("http://localhost:8080/course")
+        axios.get("https://learning-management-system-q1rc.onrender.com/course")
             .then(res => setCourses(res.data))
             .catch(console.error);
     }, []);
@@ -30,7 +30,7 @@ function Assignment() {
 
         try {
             await axios.post(
-                `http://localhost:8080/assignment/${courseId}`,
+                `https://learning-management-system-q1rc.onrender.com/assignment/${courseId}`,
                 { title, description }
             );
             alert("Assignment created successfully!");

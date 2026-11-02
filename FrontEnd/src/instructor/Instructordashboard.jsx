@@ -26,7 +26,7 @@ function Instructordashboard() {
     async function loadData() {
         try {
             const courseResponse = await axios.get(
-                "http://localhost:8080/course"
+                "https://learning-management-system-q1rc.onrender.com/course"
             );
 
             const myCourses = courseResponse.data.filter(
@@ -36,7 +36,7 @@ function Instructordashboard() {
             setCourses(myCourses);
 
             const enrollmentResponse = await axios.get(
-                "http://localhost:8080/enrollment"
+                "https://learning-management-system-q1rc.onrender.com/enrollment"
             );
 
             setEnrollments(
@@ -48,7 +48,7 @@ function Instructordashboard() {
             );
 
             const assignmentResponse = await axios.get(
-                "http://localhost:8080/assignment"
+                "https://learning-management-system-q1rc.onrender.com/assignment"
             );
 
             setAssignments(
@@ -60,7 +60,7 @@ function Instructordashboard() {
             );
 
             const submissionResponse = await axios.get(
-                "http://localhost:8080/submission"
+                "https://learning-management-system-q1rc.onrender.com/submission"
             );
 
             setSubmissions(

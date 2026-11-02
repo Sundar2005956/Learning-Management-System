@@ -31,9 +31,9 @@ function Studentdashboard() {
 
             const [courseRes, enrollmentRes, submissionRes] =
                 await Promise.all([
-                    axios.get("http://localhost:8080/course"),
-                    axios.get("http://localhost:8080/enrollment"),
-                    axios.get("http://localhost:8080/submission")
+                    axios.get("https://learning-management-system-q1rc.onrender.com/course"),
+                    axios.get("https://learning-management-system-q1rc.onrender.com/enrollment"),
+                    axios.get("https://learning-management-system-q1rc.onrender.com/submission")
                 ]);
 
             setCourses(courseRes.data || []);
@@ -76,7 +76,7 @@ function Studentdashboard() {
 
         try {
             await axios.post(
-                `http://localhost:8080/enrollment/${user.id}/${courseId}`,
+                `https://learning-management-system-q1rc.onrender.com/enrollment/${user.id}/${courseId}`,
                 { status: "ENROLLED" }
             );
 

@@ -9,7 +9,7 @@ function LessonProgress() {
   const [enrollmentId, setEnrollmentId] = useState("");
 
   function loadData() {
-    axios.get("http://localhost:8080/lessonProgress")
+    axios.get("https://learning-management-system-q1rc.onrender.com/lessonProgress")
       .then(res => setList(res.data))
       .catch(err => console.log(err));
   }
@@ -22,7 +22,7 @@ function LessonProgress() {
     e.preventDefault();
 
     axios.post(
-      "http://localhost:8080/lessonProgress/" + lessonId + "/" + enrollmentId,
+      "https://learning-management-system-q1rc.onrender.com/lessonProgress/" + lessonId + "/" + enrollmentId,
       {}
     )
       .then(() => {

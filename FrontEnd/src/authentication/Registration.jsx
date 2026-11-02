@@ -24,7 +24,7 @@ function Registration() {
 
     try {
       const result = await axios.post(
-        "http://localhost:8080/register",
+        "https://learning-management-system-q1rc.onrender.com/register",
         user
       );
 

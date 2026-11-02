@@ -15,7 +15,7 @@ function Lesson() {
     const [content, setContent] = useState("");
 
     useEffect(() => {
-        axios.get("http://localhost:8080/course")
+        axios.get("https://learning-management-system-q1rc.onrender.com/course")
             .then(res => setCourses(res.data))
             .catch(console.error);
     }, []);
@@ -30,7 +30,7 @@ function Lesson() {
 
         try {
             await axios.post(
-                `http://localhost:8080/lesson/${courseId}`,
+                `https://learning-management-system-q1rc.onrender.com/lesson/${courseId}`,
                 { title, content }
             );
             alert("Lesson created successfully!");
