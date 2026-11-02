@@ -1,4 +1,3 @@
-
 package com.example.LearningManagementSystem.config;
 
 import org.springframework.context.annotation.Bean;
@@ -15,9 +14,9 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("https://sundar2005956.github.io")
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("*");
+                        .allowedOrigins("https://sundar2005956.github.io")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*");
             }
         };
     }
