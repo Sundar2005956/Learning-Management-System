@@ -14,7 +14,7 @@ function Submission() {
     const [answer, setAnswer] = useState("");
 
     useEffect(() => {
-        axios.get("https://learning-management-system-q1rc.onrender.com/assignment")
+        axios.get("https://api-learning-management-system.onrender.com/assignment")
             .then(res => setAssignments(res.data))
             .catch(console.error);
     }, []);
@@ -29,7 +29,7 @@ function Submission() {
 
         try {
             await axios.post(
-                `https://learning-management-system-q1rc.onrender.com/submission/${user.id}/${assignmentId}`,
+                `https://api-learning-management-system.onrender.com/submission/${user.id}/${assignmentId}`,
                 { answer }
             );
             alert("Submission completed!");

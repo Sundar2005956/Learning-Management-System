@@ -13,7 +13,7 @@ function Login() {
 
         try {
             const result = await axios.post(
-                "https://learning-management-system-q1rc.onrender.com/login",
+                "https://api-learning-management-system.onrender.com/login",
                 { email, password }
             );
 

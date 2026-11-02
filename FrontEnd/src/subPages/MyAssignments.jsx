@@ -20,7 +20,7 @@ function MyAssignments() {
         async function getAssignments() {
             try {
                 const courseResponse = await axios.get(
-                    "https://learning-management-system-q1rc.onrender.com/course"
+                    "https://api-learning-management-system.onrender.com/course"
                 );
 
                 const myCourses = courseResponse.data.filter(
@@ -28,7 +28,7 @@ function MyAssignments() {
                 );
 
                 const assignmentResponse = await axios.get(
-                    "https://learning-management-system-q1rc.onrender.com/assignment"
+                    "https://api-learning-management-system.onrender.com/assignment"
                 );
 
                 const myAssignments = assignmentResponse.data.filter(

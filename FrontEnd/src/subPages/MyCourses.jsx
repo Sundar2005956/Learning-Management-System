@@ -17,7 +17,7 @@ function MyCourses() {
             return;
         }
 
-        axios.get("https://learning-management-system-q1rc.onrender.com/course")
+        axios.get("https://api-learning-management-system.onrender.com/course")
             .then(response => {
                 const myCourses = response.data.filter(
                     course => course.instructorId?.id === user.id

@@ -38,7 +38,7 @@ function Course() {
 
         try {
             await axios.post(
-                `https://learning-management-system-q1rc.onrender.com/course/${user.id}`,
+                `https://api-learning-management-system.onrender.com/course/${user.id}`,
                 {
                     ...course,
                     maxCapacity: Number(course.maxCapacity)
