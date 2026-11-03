@@ -1,11 +1,10 @@
-
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/style.css";
+import { useLocation, useNavigate } from "react-router-dom";
 
-function Studentdashboard() {
+const API = "https://api-learning-management-system.onrender.com";
+
+function StudentDashboard() {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -13,101 +12,165 @@ function Studentdashboard() {
 
     const [courses, setCourses] = useState([]);
     const [enrollments, setEnrollments] = useState([]);
+    const [assignments, setAssignments] = useState([]);
     const [submissions, setSubmissions] = useState([]);
+    const [answers, setAnswers] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user?.id || user.role !== "STUDENT") {
-            navigate("/login", { replace: true });
+        if (!user?.id) {
+            setLoading(false);
             return;
         }
 
-        loadData();
+        loadStudentData();
     }, [user?.id]);
 
-    async function loadData() {
+    const loadStudentData = async () => {
         try {
             setLoading(true);
 
-            const [courseRes, enrollmentRes, submissionRes] =
+            const [courseRes, enrollmentRes, assignmentRes, submissionRes] =
                 await Promise.all([
-                    axios.get("https://api-learning-management-system.onrender.com/course"),
-                    axios.get("https://api-learning-management-system.onrender.com/enrollment"),
-                    axios.get("https://api-learning-management-system.onrender.com/submission")
+                    axios.get(`${API}/course`),
+                    axios.get(`${API}/enrollment`),
+                    axios.get(`${API}/assignment`),
+                    axios.get(`${API}/submission`)
                 ]);
 
-            setCourses(courseRes.data || []);
+            const allCourses = Array.isArray(courseRes.data)
+                ? courseRes.data : [];
 
-            setEnrollments(
-                (enrollmentRes.data || []).filter(
-                    e => e.studentid?.id === user.id
-                )
+            const allEnrollments = Array.isArray(enrollmentRes.data)
+                ? enrollmentRes.data : [];
+
+            const allAssignments = Array.isArray(assignmentRes.data)
+                ? assignmentRes.data : [];
+
+            const allSubmissions = Array.isArray(submissionRes.data)
+                ? submissionRes.data : [];
+
+            const studentEnrollments = allEnrollments.filter(
+                (e) => Number(e.studentid?.id) === Number(user.id)
             );
 
-            setSubmissions(
-                (submissionRes.data || []).filter(
-                    s => s.studentid?.id === user.id
-                )
+            const enrolledCourseIds = studentEnrollments.map(
+                (e) => Number(e.courseid?.id)
             );
+
+            const studentAssignments = allAssignments.filter(
+                (a) => enrolledCourseIds.includes(Number(a.courseid?.id))
+            );
+
+            const studentSubmissions = allSubmissions.filter(
+                (s) => Number(s.studentid?.id) === Number(user.id)
+            );
+
+            setCourses(allCourses);
+            setEnrollments(studentEnrollments);
+            setAssignments(studentAssignments);
+            setSubmissions(studentSubmissions);
+
         } catch (error) {
-            console.log("API Error:", error);
-            console.log("Response:", error.response?.data);
-            console.log("Status:", error.response?.status);
-            alert("Check the browser console (F12).");
+            console.error("Error loading student data:", error);
+            alert("Unable to load dashboard data. Please try again.");
         } finally {
             setLoading(false);
         }
-    }
+    };
 
-    async function enroll(courseId) {
-        if (!user?.id) {
-            alert("Please log in first.");
-            return;
-        }
-
-        const alreadyEnrolled = enrollments.some(
-            e => e.courseid?.id === courseId
+    const isEnrolled = (courseId) => {
+        return enrollments.some(
+            (e) => Number(e.courseid?.id) === Number(courseId)
         );
+    };
 
-        if (alreadyEnrolled) {
-            alert("You are already enrolled in this course.");
+    const enrollCourse = async (courseId) => {
+        try {
+            await axios.post(
+                `${API}/enrollment/${user.id}/${courseId}`
+            );
+
+            alert("Successfully enrolled!");
+            loadStudentData();
+
+        } catch (error) {
+            console.error("Enrollment error:", error);
+            alert("Unable to enroll. You may already be enrolled.");
+        }
+    };
+
+    const submitAssignment = async (assignmentId) => {
+        const answer = answers[assignmentId];
+
+        if (!answer || !answer.trim()) {
+            alert("Please enter your answer.");
             return;
         }
 
         try {
             await axios.post(
-                `https://api-learning-management-system.onrender.com/enrollment/${user.id}/${courseId}`,
-                { status: "ENROLLED" }
+                `${API}/submission/${user.id}/${assignmentId}`,
+                { answer: answer }
             );
 
-            alert("Enrolled successfully!");
-            await loadData();
+            alert("Assignment submitted successfully!");
+
+            setAnswers((prev) => ({
+                ...prev,
+                [assignmentId]: ""
+            }));
+
+            loadStudentData();
+
         } catch (error) {
-            console.error("Enrollment failed:", error);
-            alert(
-                error.response?.data?.message ||
-                "Enrollment failed. Please check your backend."
-            );
+            console.error("Submission error:", error);
+            alert("Unable to submit assignment. Please try again.");
         }
+    };
+
+    const logout = () => {
+        navigate("/login");
+    };
+
+    if (!user?.id) {
+        return (
+            <div className="container mt-5 text-center">
+                <h3>Please login again</h3>
+                <button
+                    className="btn btn-primary mt-3"
+                    onClick={() => navigate("/login")}
+                >
+                    Go to Login
+                </button>
+            </div>
+        );
     }
 
-    function logout() {
-        navigate("/login", { replace: true });
-    }
-
-    if (!user) {
-        return null;
+    if (loading) {
+        return (
+            <div className="container mt-5 text-center">
+                <h4>Loading Student Dashboard...</h4>
+            </div>
+        );
     }
 
     return (
-        <div className="student-dashboard">
-            <nav className="student-navbar d-flex justify-content-between align-items-center px-4 py-3">
-                <h3 className="mb-0">LearnHub</h3>
+        <div className="container-fluid bg-light min-vh-100 p-4">
 
-                <div className="d-flex align-items-center gap-3">
-                    <span>Student Portal</span>
+            {/* Navbar */}
+            <nav className="navbar navbar-expand-lg navbar-dark bg-primary rounded px-3 mb-4">
+                <span className="navbar-brand fw-bold">
+                    LearnHub - Student
+                </span>
+
+                <div className="ms-auto d-flex align-items-center gap-3">
+                    <span className="text-white">
+                        {user.fullName}
+                    </span>
+
                     <button
-                        className="btn btn-outline-danger btn-sm"
+                        className="btn btn-light btn-sm"
                         onClick={logout}
                     >
                         Logout
@@ -115,178 +178,259 @@ function Studentdashboard() {
                 </div>
             </nav>
 
-            <div className="container-fluid dashboard-content p-4">
-                <div className="welcome-section mb-4">
-                    <h2>
-                        Welcome, {user.fullName || "Student"}!
-                    </h2>
-                    <p>
-                        Continue learning and track your progress.
-                    </p>
-                </div>
-
-                <div className="row g-3 mb-4">
-                    <div className="col-12 col-md-4">
-                        <div className="summary-card p-4">
-                            <h5>Available Courses</h5>
-                            <h2>{courses.length}</h2>
-                        </div>
-                    </div>
-
-                    <div className="col-12 col-md-4">
-                        <div className="summary-card p-4">
-                            <h5>My Enrollments</h5>
-                            <h2>{enrollments.length}</h2>
-                        </div>
-                    </div>
-
-                    <div className="col-12 col-md-4">
-                        <div className="summary-card p-4">
-                            <h5>My Submissions</h5>
-                            <h2>{submissions.length}</h2>
-                        </div>
-                    </div>
-                </div>
-
-                {loading ? (
-                    <p>Loading dashboard...</p>
-                ) : (
-                    <>
-                        <section className="dashboard-section mb-5">
-                            <h4 className="mb-3">Available Courses</h4>
-
-                            <div className="row g-3">
-                                {courses.length === 0 ? (
-                                    <p>No courses available.</p>
-                                ) : (
-                                    courses.map(course => {
-                                        const isEnrolled = enrollments.some(
-                                            e => e.courseid?.id === course.id
-                                        );
-
-                                        return (
-                                            <div
-                                                className="col-12 col-md-6 col-xl-4"
-                                                key={course.id}
-                                            >
-                                                <div className="course-card card h-100 p-3">
-                                                    <div className="card-body">
-                                                        <h5 className="card-title">
-                                                            {course.title}
-                                                        </h5>
-
-                                                        <p className="card-text">
-                                                            {course.description}
-                                                        </p>
-
-                                                        <p>
-                                                            <strong>Category:</strong>{" "}
-                                                            {course.category}
-                                                        </p>
-
-                                                        <p>
-                                                            <strong>Level:</strong>{" "}
-                                                            {course.level}
-                                                        </p>
-
-                                                        <button
-                                                            className="btn btn-primary w-100"
-                                                            disabled={isEnrolled}
-                                                            onClick={() =>
-                                                                enroll(course.id)
-                                                            }
-                                                        >
-                                                            {isEnrolled
-                                                                ? "Already Enrolled"
-                                                                : "Enroll Now"}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                )}
-                            </div>
-                        </section>
-
-                        <section className="dashboard-section mb-5">
-                            <h4 className="mb-3">My Enrollments</h4>
-
-                            <div className="table-responsive">
-                                <table className="table table-hover align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>Course</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        {enrollments.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="2">
-                                                    No enrollments yet.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            enrollments.map(e => (
-                                                <tr key={e.id}>
-                                                    <td>
-                                                        {e.courseid?.title ||
-                                                            e.courseid?.id}
-                                                    </td>
-                                                    <td>{e.status}</td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-
-                        <section className="dashboard-section mb-4">
-                            <h4 className="mb-3">My Submissions</h4>
-
-                            <div className="table-responsive">
-                                <table className="table table-hover align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>Assignment</th>
-                                            <th>Status</th>
-                                            <th>Marks</th>
-                                            <th>Feedback</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        {submissions.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="4">
-                                                    No submissions yet.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            submissions.map(s => (
-                                                <tr key={s.id}>
-                                                    <td>
-                                                        {s.assignmentid?.title ||
-                                                            s.assignmentid?.id}
-                                                    </td>
-                                                    <td>{s.status}</td>
-                                                    <td>{s.marks ?? "-"}</td>
-                                                    <td>{s.feedback || "-"}</td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </>
-                )}
+            {/* Welcome */}
+            <div className="mb-4">
+                <h2>Welcome, {user.fullName}!</h2>
+                <p className="text-muted">
+                    Continue learning and track your progress.
+                </p>
             </div>
+
+            {/* Statistics */}
+            <div className="row g-3 mb-4">
+                <div className="col-md-4">
+                    <div className="card shadow-sm border-0 p-3">
+                        <h6 className="text-muted">Available Courses</h6>
+                        <h2>{courses.length}</h2>
+                    </div>
+                </div>
+
+                <div className="col-md-4">
+                    <div className="card shadow-sm border-0 p-3">
+                        <h6 className="text-muted">My Enrollments</h6>
+                        <h2>{enrollments.length}</h2>
+                    </div>
+                </div>
+
+                <div className="col-md-4">
+                    <div className="card shadow-sm border-0 p-3">
+                        <h6 className="text-muted">My Submissions</h6>
+                        <h2>{submissions.length}</h2>
+                    </div>
+                </div>
+            </div>
+
+            {/* Available Courses */}
+            <div className="card shadow-sm border-0 mb-4">
+                <div className="card-body">
+                    <h4 className="mb-3">Available Courses</h4>
+
+                    <div className="row g-3">
+                        {courses.length === 0 ? (
+                            <p>No courses available.</p>
+                        ) : (
+                            courses.map((course) => (
+                                <div className="col-md-4" key={course.id}>
+                                    <div className="card h-100">
+                                        <div className="card-body">
+                                            <h5>{course.title}</h5>
+
+                                            <p>{course.description}</p>
+
+                                            <p>
+                                                <strong>Category:</strong>{" "}
+                                                {course.category}
+                                            </p>
+
+                                            <p>
+                                                <strong>Level:</strong>{" "}
+                                                {course.level}
+                                            </p>
+
+                                            {isEnrolled(course.id) ? (
+                                                <button
+                                                    className="btn btn-success"
+                                                    disabled
+                                                >
+                                                    Enrolled
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={() =>
+                                                        enrollCourse(course.id)
+                                                    }
+                                                >
+                                                    Enroll Now
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* My Enrollments */}
+            <div className="card shadow-sm border-0 mb-4">
+                <div className="card-body">
+                    <h4 className="mb-3">My Enrollments</h4>
+
+                    <div className="table-responsive">
+                        <table className="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Course ID</th>
+                                    <th>Course Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {enrollments.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="3" className="text-center">
+                                            No enrollments yet.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    enrollments.map((enrollment) => (
+                                        <tr key={enrollment.id}>
+                                            <td>{enrollment.courseid?.id}</td>
+                                            <td>
+                                                {enrollment.courseid?.title || "Course"}
+                                            </td>
+                                            <td>
+                                                <span className="badge bg-success">
+                                                    Enrolled
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {/* Assignments */}
+            <div className="card shadow-sm border-0 mb-4">
+                <div className="card-body">
+                    <h4 className="mb-3">Available Assignments</h4>
+
+                    {assignments.length === 0 ? (
+                        <p>No assignments available for your enrolled courses.</p>
+                    ) : (
+                        assignments.map((assignment) => {
+                            const alreadySubmitted = submissions.some(
+                                (s) =>
+                                    Number(s.assignmentid?.id) ===
+                                    Number(assignment.id)
+                            );
+
+                            return (
+                                <div
+                                    className="border rounded p-3 mb-3"
+                                    key={assignment.id}
+                                >
+                                    <h5>
+                                        {assignment.title || "Assignment"}
+                                    </h5>
+
+                                    <p>
+                                        {assignment.description}
+                                    </p>
+
+                                    <p>
+                                        <strong>Due Date:</strong>{" "}
+                                        {assignment.dueDate || "Not specified"}
+                                    </p>
+
+                                    {alreadySubmitted ? (
+                                        <span className="badge bg-success">
+                                            Submitted
+                                        </span>
+                                    ) : (
+                                        <>
+                                            <textarea
+                                                className="form-control mb-3"
+                                                rows="4"
+                                                placeholder="Enter your assignment answer..."
+                                                value={answers[assignment.id] || ""}
+                                                onChange={(e) =>
+                                                    setAnswers((prev) => ({
+                                                        ...prev,
+                                                        [assignment.id]: e.target.value
+                                                    }))
+                                                }
+                                            />
+
+                                            <button
+                                                className="btn btn-primary"
+                                                onClick={() =>
+                                                    submitAssignment(assignment.id)
+                                                }
+                                            >
+                                                Submit Assignment
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
+            </div>
+
+            {/* My Submissions */}
+            <div className="card shadow-sm border-0 mb-4">
+                <div className="card-body">
+                    <h4 className="mb-3">My Submissions</h4>
+
+                    <div className="table-responsive">
+                        <table className="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Assignment</th>
+                                    <th>Answer</th>
+                                    <th>Status</th>
+                                    <th>Marks</th>
+                                    <th>Feedback</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {submissions.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="text-center">
+                                            No submissions yet.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    submissions.map((submission) => (
+                                        <tr key={submission.id}>
+                                            <td>
+                                                {submission.assignmentid?.title ||
+                                                    submission.assignmentid?.id}
+                                            </td>
+
+                                            <td>{submission.answer}</td>
+
+                                            <td>
+                                                {submission.status || "Pending"}
+                                            </td>
+
+                                            <td>
+                                                {submission.marks ?? "-"}
+                                            </td>
+
+                                            <td>
+                                                {submission.feedback || "-"}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 }
 
-export default Studentdashboard;
+export default StudentDashboard;
