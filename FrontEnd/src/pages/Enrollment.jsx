@@ -25,7 +25,7 @@ function Enrollment() {
     async function loadEnrollments() {
         try {
             const courseResponse = await axios.get(
-                "https://api-learning-management-system.onrender.com/course"
+                "https://learning-management-system-production-ca71752e.up.railway.app/course"
             );
 
             // Get only courses created by this instructor
@@ -36,7 +36,7 @@ function Enrollment() {
             setCourses(myCourses);
 
             const enrollmentResponse = await axios.get(
-                "https://api-learning-management-system.onrender.com/enrollment"
+                "https://learning-management-system-production-ca71752e.up.railway.app/enrollment"
             );
 
             // Get enrollments belonging to this instructor's courses

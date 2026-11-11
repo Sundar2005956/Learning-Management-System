@@ -33,7 +33,7 @@ function Registration() {
 
         try {
             const result = await axios.post(
-                "https://api-learning-management-system.onrender.com/register",
+                "https://learning-management-system-production-ca71752e.up.railway.app/register",
                 user,
                 { timeout: 120000 }
             );

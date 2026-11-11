@@ -9,7 +9,7 @@ function LessonProgress() {
   const [enrollmentId, setEnrollmentId] = useState("");
 
   function loadData() {
-    axios.get("https://api-learning-management-system.onrender.com/lessonProgress")
+    axios.get("https://learning-management-system-production-ca71752e.up.railway.app/lessonProgress")
       .then(res => setList(res.data))
       .catch(err => console.log(err));
   }
@@ -22,7 +22,7 @@ function LessonProgress() {
     e.preventDefault();
 
     axios.post(
-      "https://api-learning-management-system.onrender.com/lessonProgress/" + lessonId + "/" + enrollmentId,
+      "https://learning-management-system-production-ca71752e.up.railway.app/lessonProgress/" + lessonId + "/" + enrollmentId,
       {}
     )
       .then(() => {

@@ -15,7 +15,7 @@ function Assignment() {
     const [description, setDescription] = useState("");
 
     useEffect(() => {
-        axios.get("https://api-learning-management-system.onrender.com/course")
+        axios.get("https://learning-management-system-production-ca71752e.up.railway.app/course")
             .then(res => setCourses(res.data))
             .catch(console.error);
     }, []);
@@ -30,7 +30,7 @@ function Assignment() {
 
         try {
             await axios.post(
-                `https://api-learning-management-system.onrender.com/assignment/${courseId}`,
+                `https://learning-management-system-production-ca71752e.up.railway.app/assignment/${courseId}`,
                 { title, description }
             );
             alert("Assignment created successfully!");

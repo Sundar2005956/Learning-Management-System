@@ -15,7 +15,7 @@ function Lesson() {
     const [content, setContent] = useState("");
 
     useEffect(() => {
-        axios.get("https://api-learning-management-system.onrender.com/course")
+        axios.get("https://learning-management-system-production-ca71752e.up.railway.app/course")
             .then(res => setCourses(res.data))
             .catch(console.error);
     }, []);
@@ -30,7 +30,7 @@ function Lesson() {
 
         try {
             await axios.post(
-                `https://api-learning-management-system.onrender.com/lesson/${courseId}`,
+                `https://learning-management-system-production-ca71752e.up.railway.app/lesson/${courseId}`,
                 { title, content }
             );
             alert("Lesson created successfully!");

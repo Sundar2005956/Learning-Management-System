@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const API = "https://api-learning-management-system.onrender.com";
+const API = "https://learning-management-system-production-ca71752e.up.railway.app";
 
 function StudentDashboard() {
     const location = useLocation();

@@ -14,7 +14,7 @@ function Submission() {
     const [answer, setAnswer] = useState("");
 
     useEffect(() => {
-        axios.get("https://api-learning-management-system.onrender.com/assignment")
+        axios.get("https://learning-management-system-production-ca71752e.up.railway.app/assignment")
             .then(res => setAssignments(res.data))
             .catch(console.error);
     }, []);
@@ -29,7 +29,7 @@ function Submission() {
 
         try {
             await axios.post(
-                `https://api-learning-management-system.onrender.com/submission/${user.id}/${assignmentId}`,
+                `https://learning-management-system-production-ca71752e.up.railway.app/submission/${user.id}/${assignmentId}`,
                 { answer }
             );
             alert("Submission completed!");

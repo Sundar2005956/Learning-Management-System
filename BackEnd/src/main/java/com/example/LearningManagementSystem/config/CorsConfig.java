@@ -1,3 +1,4 @@
+
 package com.example.LearningManagementSystem.config;
 
 import org.springframework.context.annotation.Bean;

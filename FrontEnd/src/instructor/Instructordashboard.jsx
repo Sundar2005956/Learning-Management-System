@@ -26,7 +26,7 @@ function Instructordashboard() {
     async function loadData() {
         try {
             const courseResponse = await axios.get(
-                "https://api-learning-management-system.onrender.com/course"
+                "https://learning-management-system-production-ca71752e.up.railway.app/course"
             );
 
             const myCourses = courseResponse.data.filter(
@@ -36,7 +36,7 @@ function Instructordashboard() {
             setCourses(myCourses);
 
             const enrollmentResponse = await axios.get(
-                "https://api-learning-management-system.onrender.com/enrollment"
+                "https://learning-management-system-production-ca71752e.up.railway.app/enrollment"
             );
 
             setEnrollments(
@@ -48,7 +48,7 @@ function Instructordashboard() {
             );
 
             const assignmentResponse = await axios.get(
-                "https://api-learning-management-system.onrender.com/assignment"
+                "https://learning-management-system-production-ca71752e.up.railway.app/assignment"
             );
 
             setAssignments(
@@ -60,7 +60,7 @@ function Instructordashboard() {
             );
 
             const submissionResponse = await axios.get(
-                "https://api-learning-management-system.onrender.com/submission"
+                "https://learning-management-system-production-ca71752e.up.railway.app/submission"
             );
 
             setSubmissions(

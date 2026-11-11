@@ -21,7 +21,7 @@ function Login() {
 
         try {
             const result = await axios.post(
-                "https://api-learning-management-system.onrender.com/login",
+                "https://learning-management-system-production-ca71752e.up.railway.app/login",
                 { email, password },
                 { timeout: 120000 }
             );
